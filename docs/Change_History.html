@@ -1,0 +1,248 @@
+<html><head><!-- This document was created from RTF source by rtftohtml version
+2.7.5 --><title>rtftohtml Change History</title></head><body><h1>
+Changes in rtftohtml 2.7.5</h1>
+<ul>
+<li>	Changed the processing of line breaks (\line in RTF,
+&lt;shift&gt;&lt;return&gt; in MS Word). These were being treated the same as
+paragraph marks, but they should have been treated as a simple break. Where
+this makes a difference is in lists.  <br><br>The filter now correctly renders
+the following example as a single list element (i.e. one bullet mark) across
+two lines. </ul>
+
+<pre>
+*    some list element\line
+     more stuff belonging to same list element, but on a different line.
+
+</pre>
+<ul>
+<li>	MSWord 6.0 for the Macintosh is now using 'RTF ' as the file type for rtf
+files, instead of TEXT. This caused rtftohtml to ignore those files in the OPEN
+file dialog box. You could not drag and drop those RTF files onto the filter
+either. The filter now accepts file types of RTF or TEXT.</ul><hr><p>
+<b>IMPORTANT</b>!<p>
+To make drag-n-drop of MSWord 6.0 RTF files work on your Macintosh, you
+<b>must</b>:<p>
+1.	Download rtftohtml 2.7.5 onto your Macintosh<p>
+2.	Copy <b>ALL PREVIOUS VERSIONS</b> of rtftohtml onto a backup disk. Then
+<b>REMOVE</b> them from your hard-disk.<p>
+3.	Restart your Macintosh, while holding down the OPTION and Apple keys. This
+will re-build your desktop. 
+<hr><h1>
+Changes in rtftohtml 2.7.4</h1>
+<ul>
+<li>	Fixed a bug where column widths of 1 character caused an infinate loop.
+<li>	Fixed a problem for <b>NeXT</b> <b>RTF</b> files where \ followed by a
+newline was not being interpreted as a \par mark.
+<li>	Footnote numbers were not being reset at the start of each file, so the
+sceond document converted would have footnotes starting at &gt; 1.
+<li>	Some Word 6.0 RTF symbols were improperly coded as destinations. This
+caused rtftohtml to discard the rest of the file (searching for a closing '}'
+)</ul><h1>
+Changes in rtftohtml 2.7.3</h1>
+<ul>
+<li>	Modified status bar for <b>Mac</b> platform - it was incorrect for large
+files.
+<li>	Changed error messages to print line and column information rather than
+context.
+<li>	Modified <b>MWF</b> processing to produce the correct <b>WMF</b> header
+<li>	Added code to recognize that style names of the form "Normal, fred"
+actually mean that either Normal or fred are recognized as the style name.
+(Implies that style names with ',' in html-trans are incorrect.)
+<li>	Added -V option to UNIX version
+<li>	Corrected usage message on UNIX version</ul><h1>
+Changes in rtftohtml 2.7</h1>
+<ul>
+<li>	Footnotes are now written to a separate file (filename_fn.html). This
+allows the &lt;back&gt; button of all browsers to navigate back from a footnote
+to the footnote reference.
+<li>	A table of contents file is now generated using the text from all headings
+&lt;H1&gt;..&lt;Hn&gt; and any table of contents entries in the RTF. The table
+of contents has hypertext links from the TOC entries to their locations in the
+main HTML text. The -T option disables this feature.
+<li>	Generation of graphics files can be disabled through the -G option. The
+filter still generates the hypertext links to the graphics files, but it does
+not re-write the files themselves. This improves performance for graphics
+intensive RTF files.
+<li>	Fixed a bug where table of contents entries and index entries were not
+appearing in the HTML output.
+<li>	Fixed a bug that caused aborts when graphics occurred in a table.
+<li>	rtftohtml now closes off any "text" markup
+(&lt;em&gt;,&lt;b&gt;,&lt;cite&gt;) before emitting a paragraph tag. This more
+closely matches the HTML DTD and corrects a few error conditions.
+<li>	The format of the html-trans file has changed. You will need to use the
+html-trans file from this distribution and then add any changes that you made
+to customize your html-trans.
+<li>	Footnotes no longer require special styles in order to work. This means
+that all superscripts can now be translated to &lt;su&gt;&lt;/su&gt; or any
+other markup you prefer.
+<li>	The Macintosh interface now allows the file Creator to be selected for
+graphics, HTML and error files.
+<li>	Fixed a bug that caused formatted text in tables to be lost or added to
+the wrong cells.
+<li>
+<li></ul><h1>
+Notes on rtftohtml 2.5</h1>
+<h2>
+This release of rtftohtml requires a new version of the html-trans file. Using
+your old one will not work. </h2>
+The new format file has an additional item added to the <i>.PTag</i> table. An
+entry now looks like this:
+
+<pre>
+#"name","starttag","endtag","col2mark","tabmark","parmark",allowtext,cannest,DelteCol1,fold
+.PTag
+</pre>
+...
+
+<pre>
+"Normal","","\n","\t","\t","&lt;p&gt;\n",1,0,0,1
+"pre","&lt;pre&gt;","&lt;/pre&gt;","\t","\t","\n",0,0,0,0
+
+</pre>
+The
+<i>fold</i> field should be set to zero (0) for all entries except
+<tt>"pre"</tt> or <tt>"listing"</tt>. A zero entry allows rtftohtml to insert
+newlines <tt>"\n"</tt> into the source so that lines do not get too long in
+your HTML file. This feature is designed to make editing/viewing of HTML source
+files easier with editors like <i>vi</i>. You must use one (1) for "pre" and
+"listing" because newlines are significant characters for these markups.<p>
+You must add the following entry to your <i>.PTag</i> table. This is required
+to support table translation.
+
+<pre>
+# This is a required entry; tables will be formatted with this entry
+"_Table","&lt;pre&gt;","&lt;/pre&gt;","\t","\t","\n",0,0,0,0
+</pre>
+<p>
+You must add the following entry to your <i>.PMatch</i> table:<p>
+
+
+<pre>
+# This is a required entry; tables will be formatted with this entry
+"_Table",0,"_Table"
+</pre>
+<h2>
+Table Translation</h2>
+rtftohtml will now translate tables into preformatted ascii tables. <b>Tables
+cannot contain any markup</b>. That is,  <b>BOLD</b>, <i>ITALIC</i> etc. will
+be ignored. Also tables cannot contain anchors, footnotes,  or hidden text.<p>
+The filter will produce a table that has the same number of columns as the
+input. <b>The size of the columns will be proportional to the sizes of the
+input columns.</b> Note that there is no guarantee that text that fit in your
+original table will still fit in the formatted version. This is because the
+point size of input may not be proportional to the fixed size 80-characters
+per-column output. If you find that you do not like the look of the formatted
+table - you must re-size the columns in your RTF source. <p>
+Columns are <b>always</b> separated by two blanks.<p>
+Columns can be left justified, right justified or centered.<p>
+Merged cells are allowed.<p>
+There is <b>no</b> support for decimal aligned data. This just looked too hard
+and prone to error. For now, you will have to make sure that all your data has
+the same number of trailing digits and stick to right justified text.
+<h2>
+A REAL Macintosh interface</h2>
+The filter now supports drag-n-drop on the Macintosh!<p>
+Options are set with menu selections! <p>
+The signiture is even registered with Apple!<p>
+
+<h3>
+To use rtftohtml on the Macintosh:</h3>
+Keep all of the translation files (html-trans, ansi-map...) in the same folder
+as the application.<p>
+Drag any RTF file onto rtftohtml (requires system 7.) <b>The output files will
+be placed in the same folder as your input file.</b> If there are any errors in
+translating your file, the error messages will be put into a file called
+<i>filename.err</i> . Some errors will cause rtftohtml to exit, others will
+not. <p>
+<b>Once rtftohtml is started, it will continue to run</b>! This allows you to
+translate many documents at a time. You can drag lots of files onto rtftohtml
+and it will translate all of them (unless it encounters a fatal translation
+error.)<p>
+To use non-default translation options, simply start rtftohtml by double
+clicking on it. Then choose your option from the options menu. These settings
+will remain in effect until rtftohtml exits. <b>The next time you run rtftohtml
+you must choose your option settings again.</b><p>
+<b></b>You can open RTF files using <b>Open</b>... from the <b>File</b> menu.
+This will only work for files with an extension of .rtf (or .RTF). If you want
+to open a file without an extension of .rtf, you must hold down the option key
+when selecting <b>Open</b>.
+<h3>
+Options Menu</h3>
+The Graphic file extension in the Options menu allows you to change the default
+extension for graphic files from ".gif" to an extension of your own
+chooseing.<p>
+The Inline graphics option will (when set) use &lt;IMG SRC=... markup in HTML
+files for graphics instead of &lt;A HREF=...<p>
+The Auto Filenames option when set will put the HTML output in the same folder
+as the input, with a .HTML extension. If you want to specify your own
+filenames, turn this option off. Then rtftohtml will prompt you for an output
+file name each time a file is translated.
+<h2>
+Miscellaneous Features</h2>
+<ul>
+<li>	All paragraph styles that appear in a document but that do not appear in
+the html-trans file will be treated as a warning. This provides you with a list
+of paragraph styles that you can then add to html-trans.
+<li>	You can tell rtftohtml to discard all of the text with a given paragraph
+style. This is done by using the "_Discard" in the .PMatch table. For exampl,
+the following entries will discard all text with paragraph styles "toc 1-5" and
+"index 1-5". (Word uses these paragraph styles for generating a table of
+contents and index. Since these contain page numbers which do not apply to HTML
+documents, you may wish to discard them.)</ul>
+
+<pre>
+"toc 1",0,"_Discard"
+"toc 2",0,"_Discard"
+"toc 3",0,"_Discard"
+"toc 4",0,"_Discard"
+"toc 5",0,"_Discard"
+"index 1",0,"_Discard"
+"index 2",0,"_Discard"
+"index 3",0,"_Discard"
+"index 4",0,"_Discard"
+"index 5",0,"_Discard"
+</pre>
+<h2>
+Bugs Fixed in 2.5</h2>
+rtftohtml was generating "unknown symbol" errors for optional destinations (RTF
+with a markup of {\*\xxx ... } The convention for RTF readers is that any
+optional destination that a reader does not understand should be silently
+ignored. This bug was also causing extra text to be inserted into HTML files.<p>
+<p>
+
+<h1>
+Bugs fixed in 2.1</h1>
+<ul>
+<li>	rtftohtml generates empty anchors &lt;a name="myname"&gt;&lt;/a&gt; where
+the "Named Anchor" feature is used. Xmosaic does not support empty anchors,
+although other browsers (including Mac Mosaic) do. I have reported this as a
+bug to the good folks at NCSA. I am hoping that they fix this so that I don't
+have to patch the filter. Stay tuned. - The good folks at NCSA told me not to
+wait, so I revised rtftohtml to create anchors with an extra space:
+&lt;a&nbsp;name="myname"&gt; &lt;/a&gt; 
+<li>	Imbedded object were not appearing in the HTML output. Now they are!
+<li>	Fixed the usage line to reflect that -H is not a legal option.
+<li>	Windows Metafiles were given an extension of ".meta". That has been
+changed to ".wmf".
+<li>	The Mac version failed to find html-trans, html-map when the input file
+was not in the same folder.
+<li>	Nested lists were not working properly. How did I miss that one
+:?&gt;</ul><h1>
+Bugs fixed in 2.0.1</h1>
+<ul>
+<li>	RTF files created without a leading /pard caused aborts
+<li>	Graphics within a HOT text area caused failures instead of generating IMG
+links
+<li>	Anchor names and Hot Text links were getting an extra "&gt;" inserted.
+<li>	Footnotes incorrectly got a "#" at the anchor points.
+<li>	Footnotes reference marks were generated without any separating text or
+space. Should be generated as [1]
+<li>	filter did not understand \tql which is generated in FrameMaker RTF
+output. This has been added to reader.c and rtf.h in the source directory.
+Eventually, these changes will be incoporated in an official distribution of
+the RTF package. (Binary versions of rtftohtml contain the fix)
+<li>	FrameMaker RTF assumes that \pard implies \plain - MS Word for the Mac
+appears to handle it that way, so I have updated the filter.
+<li>
+<li></ul>
+</body></html>

@@ -1,0 +1,258 @@
+CHANGES to rtftoweb/rtftohtml
+
+----------- ??.02.96: Released rtftoweb 1.7 --------------------------------
+
+07.02.96
+
+  - Improved the automatically generated index: Identical or similar
+    consecutive index entries are now grouped. This makes the appearance
+    of the index much clearer.
+  - Incorporated (revised and simplified) patches of Daniel Lichau:
+
+       1. Cross references to heading (marked by the color red) are now
+          always case-insensitive.
+       2. The SmallCaps/AllCaps attribute inside headings is now correctly
+	  handled.
+       3. The same should apply for hidden text inside headings.
+
+05.02.96
+
+  - Extended the nav-panel: Now the color of links, visited links and active
+    links can be changed (requires Netscape). Also, it is now possible to
+    have "fake" buttons included if there is no previous, next etc. page.
+    This results in the navigation panel always looking the same.
+  - Netscape 2.0 offers a nice new feature that I couldn't resist to support:
+    Frames. If the -F command line option is given to rtftohtml, the title
+    file will define a frame set, with the table of contents displayed in the
+    left frame and the actual title page in the right. Obviously, this requires
+    the -c option so that a ToC is generated.
+    The same ("framed") page can also be viewed by browser which don't
+    understand frames!
+
+02.02.96
+
+  - CHRIS:
+    Subscript is now supported. In fact, it has always been, the problem
+    was that Winword uses rtfSubScrShrink instead of rtfSubScript for
+    marking subscripted text. Added "case rtfSubScrShrink" to CharAttr()
+    in rtftohtml.c.
+  
+01.02.96
+
+  - The -s command line option now creates files with "htm" extension instead
+    of "html". Should simplify port to resp. use under DOS.
+  - Newline characters (i.e. line breaks) inside headings are now correctly
+    translated.
+  - The maximal number of headings is no longer limited to 1024. Instead,
+    memory required is allocated dynamically.
+  - The first heading is regarded as a level 1 heading to avoid "lost"
+    headings if it is at another level. Note that headings can still get
+    lost inside an "internal" table of contents (ie the one displayed at
+    the top of each HTML-page if there are lower level headings). For example
+    a heading sequence of "Level 1, Level 3, Level 4, Level 2" causes the
+    level 2 heading to disappear from the ToC, since its level is higher
+    then of the heading immediately following the level 1 heading. This is
+    due to the recursive nature of headline processing, and I don't consider
+    this as being a bug. The headings should reflect the logical structure
+    of the document, so it is recommended that a heading of level n is
+    followed either by a heading at the same of higher level, or at level n+1.
+  - rtftohtml now prints a warning if the case described in the previous point
+    is encountered.
+    
+31.01.96
+
+  - hierHeadingLevel now only deals with the primary style, not with styles
+    the current one is based on. Avoids false splits.
+  - Implemented patch provided by James (jkb@mrc-lmb.cam.ac.uk). rtftoweb
+    now no longer requires headings in the .PTag table (defined in html-trans)
+    to start with "h?".
+    Instead, it looks at the TocStyl number to determine if the current style
+    is a heading or not. I really wonder why I haven't implemented it like
+    that right away! Oh well...
+  - The same patch allows for customised start and end tags for headings,
+    e.g.:  "h2","<hr><h2>\n","</h2>\n","\t","\t","<br>\n",0,0,0,1,2
+    draws a horizontal ruler above each level 2 heading. Again, I have to
+    wonder... Thanks a lot, James!
+
+30.01.96
+
+  - Fixed "Unknown Class" bug: I just forgot to reset a flag in hierGroup.
+    This bug could appear if the RTF-file contained auto-numbered headings
+    or lists.
+  - CHRIS:
+    Fixed "Invalid Character Code" messages by adding entries to ansi-gen
+    and ansi-sym. In fact, these codes were not "invalid" but rather unknown.
+    These are the added entries:
+	  ellipsis  0x85
+	  bullet    0xb7
+    Note that further such messages can be fixed by adding similar values
+    to the appropriate files (depending on the charset used).
+  - CHRIS:
+    Replaced the standard html-map with the one generously provided by
+    Rainer Weidemann (weideman@iai.kfk.de). It contains translations for
+    virtually all special characters accessible from WinWord (e.g. sterling).
+  
+
+----------- 03.09.95: Released rtftoweb 1.6 --------------------------------
+
+--------------------------------------------------------------------------
+Changes from 1.5 to 1.6
+--------------------------------------------------------------------------
+
+When I released rtftoweb 1.5, I thought it would be the last version of
+rtftoweb since I agreed with Chris Hector, the author of the original 
+rtftohtml, that rtftoweb should be integrated into rtftohtml.  That was at
+the end of 1994, but no new version of rtftohtml was released since then.
+Chris told me that he has currently (and during the last monts) too many
+other things to do, and that he will not be able to continue the development
+of rtftohtml within the next few months. Because of this, and because
+I keep getting bug reports and suggestions from rtftoweb users I decided
+to release another (intermediate) version of rtftoweb.
+
+Among the new features are:
+
+	o rtftoweb now creates clean HTML
+	o the layout of the navigation panel now is fully customizable
+	o Netscape users can specify additional layout features
+	o the <center> tag of Netscape is supported
+	o empty headings are ignored
+	o if email addresses and URLs are colored red in the RTF file,
+	  an HTML hyperlink will automatically be generated
+	o some bug fixes
+	
+This is a detailed list of the changes since rtftoweb-1.5:
+
+03.09.95 (and during the weeks before)
+
+  - New command line option: -s, tells rtftoweb to use short, numbered file
+    names if the HTML output is to be split.
+  - rtftoweb now checks if a heading is longer then 256 characters and
+    ignores it if this is the case. A warning is printed, too, since
+    the author most certainly didn't want such a long heading in his/her
+    document.
+  - Auto-numbered headings are now fully supported.
+  - Internal cross references (created by text formatted as "_Name" and
+    "_Href") are now correctly resolved across file boundaries.
+  - FlushHTML() rewritten so that no newline is written to the output file
+    when this proc is invoked.
+
+06.08.95
+
+  - Changed two things in html-trans to work better with WinWord:
+    Added "Courier New" to the list of monospaced fonts and added a line
+    for hidden and strokethrough text to generate literal HTML.
+    
+04.08.95
+
+  - If the file "nav-panel" exists in rtftohtml's library directory (that is
+    where html-map etc. live), it is automatically read if no -N option was
+    given to rtftohtml.
+  - Email addresses and URIs in the RTF text are now also recognized as
+    HTML references if they are colored red (as is usual for cross references
+    inside the document).
+
+03.08.95
+
+  - Fixed bug in htmlout.c (nextfield) which caused the 81st character of 
+    non-wrappable lines to be lost.
+  - Work-around for a bug introduced by Winword 6.0: It pretends that the
+    character set used in an RTF file written by it is always ANSI, although,
+    when the source of the RTF-file was a Mac-Word-document, the character
+    set is still MAC. The shell-script rtfcharset can be used to fix this,
+    e.g. by saying "rtfcharset foo.rtf mac".
+31.07.95
+
+  - The navigation panel now is completely configurable!  This is accomplished
+    by using a simple configuration file which specifies the panel elements
+    and thus allows for navigation buttons to be images. The conf-file is
+    given to rtftohtml via the -N option.
+  - Some more Netscapisms: The nav-panel config-file can also be used to
+    specify background images and colors, text color and the appearane of 
+    horizontal rules.
+    
+30.07.95
+
+  - Empty headlines are ignored now.
+  - Corrected HTML of footnote and index files.
+  - Added support for Netscape's <center> tag.
+
+29.07.95
+
+  - html-map: &nbsp; is not supported by any HTML-browser I know, mapped
+    nobrkspace to "&#160;"
+  - text of optional RTF-destinations in headings is now ignored
+  - removed interpretation of bookmarks as being anchors (this was not
+    working right) 
+  - added support for castilian spanish (thanks to Pedro Bayon)
+  - fixed a bug that caused image files to be overwritten (thanks to 
+    Toni Verdu)  
+  - changed <a><h?>...</h?></a> to <h?><a>...</a></h?>
+  - The rtftoweb patches now generate clean HTML!
+  - Anchors of index anchors don't contain any text anymore, since Mosaic
+    and the Mosaic-based Chimera are the only browsers which (falsely) 
+    require non-empty anchors. An anchor text may be specified using the
+    command line option "-X <text>". <text> could be for example &#183;
+    as suggested by Alan Flavell.
+  
+
+--------------------------------------------------------------------------
+Changes from 1.4 to 1.5
+--------------------------------------------------------------------------
+
+THE MOST IMPORTANT CHANGE IS ...
+================================
+
+...that version 1.5 is the last version of rtftoweb. From this version on
+Chris Hector, the author of the original rtftohtml filter, will incorporate
+the rtftoweb patches into rtfothml. I think this will make life easier for
+everyone (except Chris's, perhaps :-), since you won't have to deal with
+compatiblity problems any longer. So, in the future, please send all bug
+reports, questions and suggestions that you may have to Chris (cjh@cray.com).
+
+Thank you, and look forward to the forthcoming versions of rtftohtml!
+
+
+ - removed bug in hierHeadingLevel() that caused frequent segmentation faults
+ - added support for french and italian language, thanks to
+   achille@aisws5.cern.ch
+ - works with rtftohtml-2.7.5 (without a change)
+ - some minor changes concerning file names and array allocation
+ - FINAL VERSION OF rtftoweb! (see above for details)
+
+Changes from 1.3 to 1.4
+-----------------------
+
+ - rtftoweb now uses html-trans to identify a heading style as such.
+   (Until now heading styles had to be named "heading 1" etc. Thanks Andrew.)
+ - This version of rtftoweb *requires* rtftohtml 2.7.4 (tired of keeping
+   things compatible with older versions of rtftohtml).
+
+
+Changes from 1.2 to 1.3
+-----------------------
+
+ - made rtftoweb avoid '/' and '+' in filenames
+ - check for RTFGetStyle() == NULL (Thanks Justin!)
+ - removed bug in hierIntList
+ - several minor changes
+ - added -T cmdline option to specify the document title
+ - updated to work with rtftohtml-2.7.3
+ - more verbose "usage"-string, now shows options and versions
+
+
+Changes from 1.1 to 1.2
+-----------------------
+
+ - no more ':' in filenames (newHierFile)
+ - new title for html-documents
+ - improved -h0 behaviour
+ - bug fixes
+
+
+Changes from 1.0 to 1.1
+-----------------------
+
+ - updated to work with rtftohtml-2.7
+
+
+    

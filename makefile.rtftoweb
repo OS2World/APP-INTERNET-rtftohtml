@@ -1,0 +1,101 @@
+# Edit the following two entries for your configuration
+LIBDIR=/usr/local/lib/rtftohtml
+BINDIR=/usr/local/bin
+
+#
+# Specify the default language (rtfLangNoLang maps to english, that's
+# why it's not explicitly specified below).
+# This is used for the Navigation-Panels and the Table-of-Contents and
+# Index-Headings (by the rtftoweb patches).
+#
+#DEFLANG = -DDEFAULT_LANG=rtfLangFranch
+#DEFLANG = -DDEFAULT_LANG=rtfLangGerman
+#DEFLANG = -DDEFAULT_LANG=rtfLangItalian
+#DEFLANG = -DDEFAULT_LANG=rtfLangCastilianSpanish
+DEFLANG = -DDEFAULT_LANG=rtfLangNoLang
+
+CC = gcc
+CFLAGS = -O2 -pipe ${DEFLANG} -DCB_ADD
+
+#
+# Umcomment the following 2 lines if you don't have a working gcc:
+
+#CC = cc
+#CFLAGS = -O ${DEFLANG} -DCB_ADD
+
+#
+# Uncomment the following if you don't want the new, fancy stuff that rtftoweb
+# implements. (Of course, you won't do this :-)
+#
+#CFLAGS =
+
+
+# ===================== end of configuration ==================================
+
+IDIRS=-ILibs/OTHER -ILibs/h
+
+TRFILES=ansi-gen html-map mac-gen pc-gen pca-gen \
+	ansi-sym html-trans mac-sym pc-sym pca-sym Libs/lib/rtf-ctrl 
+
+OBJS= rtftohtml.o htmlout.o transinit.o html-unix.o hier.o
+
+LIBS=Libs/OTHER/libtokenscan.a Libs/lib/librtf.a Libs/lib-unix/lib-unix.a
+
+
+rtftohtml:      libs ${OBJS}
+	${CC}   ${CFLAGS} ${OBJS} ${LIBS} -o rtftohtml.exe
+
+all:	bindist srcdist
+
+libs:	
+	cd Libs/OTHER ; ${MAKE} ${MFLAGS} CC=${CC} CFLAGS="${CFLAGS}"
+	cd Libs/h ; ${MAKE} ${MFLAGS} CC=${CC} CFLAGS="${CFLAGS}"
+	cd Libs/lib ; ${MAKE} ${MFLAGS} CC=${CC} CFLAGS="${CFLAGS}"
+	cd Libs/lib-unix ; \
+		${MAKE} ${MFLAGS} CC=${CC} CFLAGS='${CFLAGS} -DLIBDIR=\"${LIBDIR}\"'
+
+hier.o:		hier.c rtftohtml.h Libs/h/rtf.h hier.h
+	${CC}   ${CFLAGS} -c ${IDIRS} $*.c
+
+rtftohtml.o:	rtftohtml.c rtftohtml.h Libs/h/rtf.h hier.h
+	${CC}   ${CFLAGS} -c ${IDIRS} $*.c
+
+html-unix.o:	html-unix.c Libs/h/rtf-unix.h hier.h
+	${CC}   ${CFLAGS} -c ${IDIRS} $*.c
+
+htmlout.o:	htmlout.c rtftohtml.h Libs/h/rtf.h hier.h
+	${CC}   ${CFLAGS} -c ${IDIRS} $*.c
+
+transinit.o:	transinit.c rtftohtml.h Libs/h/rtf.h Libs/OTHER/tokenscan.h
+	${CC}   ${CFLAGS} -c ${IDIRS} $*.c
+
+install:	rtftohtml ${TRFILES}
+	chmod 755 rtftohtml
+	chmod 755 rtfcharset
+	chmod 644 ${TRFILES}
+	-mkdir -p ${BINDIR}
+	-mkdir -p ${LIBDIR}	
+	cp rtftohtml ${BINDIR}
+	cp rtfcharset ${BINDIR}
+	cp ${TRFILES} ${LIBDIR}
+
+clean:	
+	cd Libs/h ; ${MAKE} ${MFLAGS} clean
+	cd Libs/lib ; ${MAKE} ${MFLAGS} clean
+	cd Libs/OTHER ; ${MAKE} ${MFLAGS} clean
+	cd Libs/lib-unix ; ${MAKE} ${MFLAGS} clean
+	rm -f ${OBJS} rtftohtml 
+
+srcdist:	clean 
+	ddd=`pwd`;ddd=`basename $${ddd}`;cd ..;tar -cf $${ddd}.src.tar $${ddd};\
+	compress $${ddd}.src.tar
+
+bindist:	rtftohtml ${TRFILES}
+	ddd=`pwd`;ddd=`basename $${ddd}`;\
+	mkdir $${ddd};cp -r rtftohtml ${TRFILES} README docs $${ddd};\
+	tar -cf ../$${ddd}.tar $${ddd} ;rm -rf $${ddd};\
+	compress ../$${ddd}.tar
+
+tags:
+	etags *.c
+

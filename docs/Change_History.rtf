@@ -1,0 +1,146 @@
+{\rtf1\defformat\mac\deff2 {\fonttbl{\f0\fswiss Chicago;}{\f2\froman New York;}{\f3\fswiss Geneva;}{\f4\fmodern Monaco;}{\f5\fscript Venice;}{\f6\fdecor London;}{\f8\fdecor San Francisco;}{\f11\fnil Cairo;}{\f16\fnil Palatino;}{\f20\froman Times;}{\f21\fswiss Helvetica;}
+{\f22\fmodern Courier;}{\f23\ftech Symbol;}{\f34\fnil New Century Schlbk;}{\f2853\fnil BobGothic;}{\f2944\fnil Handwriting;}{\f9840\fnil Espy Sans;}{\f9842\fnil Espy Sans Bold;}{\f14809\fnil eWorld Tight;}}{\colortbl\red0\green0\blue0;
+\red0\green0\blue255;\red0\green255\blue255;\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;}{\stylesheet{\s245\li360\sa120 \f20\fs18\up6 \sbasedon0\snext0 footnote reference;}{
+\s246\li360\sa120 \f20\fs20 \sbasedon0\snext246 footnote text;}{\s250\li360\sb120\sa120\keepn \b\f20\fs28 \sbasedon251\snext0 heading 6;}{\s251\li360\sb120\sa120\keepn \b\f20\fs28 \sbasedon252\snext0 heading 5;}{\s252\li360\sb120\sa120\keepn \b\f20\fs28 
+\sbasedon253\snext0 heading 4;}{\s253\li360\sb120\sa120\keepn \b\f20\fs28 \sbasedon254\snext0 heading 3;}{\s254\li180\sb120\sa120\keepn\brdrb\brdrs \b\f20\fs36 \sbasedon255\snext0 heading 2;}{\s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 
+\sbasedon0\snext0 heading 1;}{\li360\sa120 \f20 \sbasedon222\snext0 Normal;}{\s1\fi-540\li900\sa120\tx900 \f20 \sbasedon0\snext1 numbered list;}{\s2\fi-540\li1440\sa120\tx1440 \f20 \sbasedon0\snext2 numbered list 1;}{\s3\fi-540\li1980\sa120\tx1980 \f20 
+\sbasedon0\snext3 numbered list 2;}{\s4\fi-280\li900\sa120\tx900 \f20 \sbasedon1\snext4 bullet list;}{\s5\fi-280\li1440\sa120\tx1440 \f20 \sbasedon2\snext5 bullet list 1;}{\s6\fi-280\li1980\sa120\tx1980 \f20 \sbasedon3\snext6 bullet list 2;}{
+\s7\fi-3960\li4320\sa120\tx4320 \f20 \sbasedon0\snext7 glossary;}{\s8\fi-3960\li4860\sa120\tx4860 \f20 \sbasedon7\snext8 glossary 1;}{\s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 \sbasedon0\snext9 pre;}{
+\s10\li360\sa120 \i\f20 \sbasedon0\snext10 address;}{\s11\li1440\ri1440\sa120 \i\f20 \sbasedon0\snext11 blockquote;}{\s12\sb120\sa120\brdrb\brdrth \f20 \sbasedon0\snext0 hr;}{\s13\fi360\tx360\tx3600\tx4320\tx7200\tx10700 \f20 \sbasedon0\snext13 dir;}{
+\s14\fi360\li360\tx720\tx3960\tx4320\tx7560\tx10700 \f20 \sbasedon0\snext14 dir 1;}{\s15\fi360\li720\tx1080\tx4320\tx7920\tx10700 \f20 \sbasedon0\snext15 dir 2;}{\s16\fi-720\li1440\tx1440 \f20 \sbasedon10\snext16 menu 1;}{\s17\fi-720\li1080\tx1080 \f20 
+\sbasedon16\snext17 menu;}{\s18\fi-720\li1800\tx1800 \f20 \sbasedon0\snext18 menu 2;}{\s19\fi-3960\li5400\sa120\tx5400 \f20 \sbasedon8\snext19 glossary 2;}{\s20\li360 \f22 \sbasedon0\snext20 HTML;}{\s21\fi-3960\li4860\sa120\tx4860 \f20 \sbasedon8\snext21 
+TERM1;}}{\info{\title rtftohtml Change History}{\author Chris Hector - cjh@cray.com}}\margl720\margr720\widowctrl\ftnbj\fracwidth \sectd \sbknone\linemod0\linex0\cols1\endnhere \pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 
+Changes in rtftohtml 2.7.5\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab Changed the processing of line breaks (\\line in RTF, <shift><return> in MS Word). These were being treated the same as paragraph marks, but they should have been treated as a simple break. Whe
+re this makes a difference is in lists.  \line \line The filter now correctly renders the following example as a single list element (i.e. one bullet mark) across two lines. \par 
+\pard\plain \s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 *    some list element\\line\par 
+     more stuff belonging to same list element, but on a different line.\par 
+\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab MSWord 6.0 for the Macintosh is now using 'RTF ' as the file type for rtf files, instead of TEXT. This caused rtftohtml 
+to ignore those files in the OPEN file dialog box. You could not drag and drop those RTF files onto the filter either. The filter now accepts file types of RTF or TEXT.\par 
+\pard\plain \s12\sb120\sa120\brdrb\brdrth \f20 \par 
+\pard\plain \li360\sa120 \f20 {\b IMPORTANT}!\par 
+To make drag-n-drop of MSWord 6.0 RTF files work on your Macintosh, you {\b must}:\par 
+1.\tab Download rtftohtml 2.7.5 onto your Macintosh\par 
+2.\tab Copy {\b ALL PREVIOUS VERSIONS} of rtftohtml onto a backup disk. Then {\b REMOVE} them from your hard-disk.\par 
+3.\tab Restart your Macintosh, while holding down the OPTION and Apple keys. This will re-build your desktop. \par 
+\pard\plain \s12\sb120\sa120\brdrb\brdrth \f20 \par 
+\pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 Changes in rtftohtml 2.7.4\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab Fixed a bug where column widths of 1 character caused an infinate loop.\par 
+\bullet \tab Fixed a problem for {\b NeXT} {\b RTF} files where \\ followed by a newline was not being interpreted as a \\par mark.\par 
+\bullet \tab Footnote numbers were not being reset at the start of each file, so the sceond document converted would have footnotes starting at > 1.\par 
+\bullet \tab Some Word 6.0 RTF symbols were improperly coded as destinations. This caused rtftohtml to discard the rest of the file (searching for a closing '\}' )\par 
+\pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 Changes in rtftohtml 2.7.3\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab Modified status bar for {\b Mac} platform - it was incorrect for large files.\par 
+\bullet \tab Changed error messages to print line and column information rather than context.\par 
+\bullet \tab Modified {\b MWF} processing to produce the correct {\b WMF} header\par 
+\bullet \tab Added code to recognize that style names of the form "Normal, fred" actually mean that either Normal or fred are recognized as the style name. (Implies that style names with ',' in html-trans are incorrect.)\par 
+\bullet \tab Added -V option to UNIX version\par 
+\bullet \tab Corrected usage message on UNIX version\par 
+\pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 Changes in rtftohtml 2.7\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab Footnotes are now written to a separate file (filename_fn.html). This allows the <back> button of all browsers to navigate back from a footnote to the footnote reference.\par 
+\bullet \tab A table of contents file is now generated using the text from all headings <H1>..<Hn> and any table of contents entries in the RTF. The table o
+f contents has hypertext links from the TOC entries to their locations in the main HTML text. The -T option disables this feature.\par 
+\bullet \tab 
+Generation of graphics files can be disabled through the -G option. The filter still generates the hypertext links to the graphics files, but it does not re-write the files themselves. This improves performance for graphics intensive RTF files.\par 
+\bullet \tab Fixed a bug where table of contents entries and index entries were not appearing in the HTML output.\par 
+\bullet \tab Fixed a bug that caused aborts when graphics occurred in a table.\par 
+\bullet \tab rtftohtml now closes off any "text" markup (<em>,<b>,<cite>) before emitting a paragraph tag. This more closely matches the HTML DTD and corrects a few error conditions.\par 
+\bullet \tab The format of the html-trans file has changed. You will need to use the html-trans file from this distribution and then add any changes that you made to customize your html-trans.\par 
+\bullet \tab Footnotes no longer require special styles in order to work. This means that all superscripts can now be translated to <su></su> or any other markup you prefer.\par 
+\bullet \tab The Macintosh interface now allows the file Creator to be selected for graphics, HTML and error files.\par 
+\bullet \tab Fixed a bug that caused formatted text in tables to be lost or added to the wrong cells.\par 
+\par 
+\par 
+\pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 Notes on rtftohtml 2.5\par 
+\pard\plain \s254\li180\sb120\sa120\keepn\brdrb\brdrs \b\f20\fs36 This release of rtftohtml requires a new version of the html-trans file. Using your old one will not work. \par 
+\pard\plain \li360\sa120 \f20 The new format file has an additional item added to the {\i .PTag} table. An entry now looks like this:\par 
+\pard\plain \s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 #"name","starttag","endtag","col2mark","tabmark","parmark",allowtext,cannest,DelteCol1,fold\par 
+.PTag\par 
+\pard\plain \li360\sa120 \f20 ...\par 
+\pard\plain \s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 "Normal","","\\n","\\t","\\t","<p>\\n",1,0,0,1\par 
+"pre","<pre>","</pre>","\\t","\\t","\\n",0,0,0,0\par 
+\par 
+\pard\plain \li360\sa120 \f20 The {\i fold} field should be set to zero (0) for all entries except {\f22 "pre"} or {\f22 "listing"}. A zero entry allows rtftohtml to insert newlines {\f22 "\\n"}
+ into the source so that lines do not get too long in your HTML file. This feature is designed to make editing/viewing of HTML source files easier with editors like {\i vi}. You must use one (1) for "pre" and "listing" because new
+lines are significant characters for these markups.\par 
+You must add the following entry to your {\i .PTag} table. This is required to support table translation.\par 
+\pard\plain \s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 # This is a required entry; tables will be formatted with this entry\par 
+"_Table","<pre>","</pre>","\\t","\\t","\\n",0,0,0,0\par 
+\pard\plain \li360\sa120 \f20 \par 
+You must add the following entry to your {\i .PMatch} table:\par 
+\par 
+\pard\plain \s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 # This is a required entry; tables will be formatted with this entry\par 
+"_Table",0,"_Table"\par 
+\pard\plain \s254\li180\sb120\sa120\keepn\brdrb\brdrs \b\f20\fs36 Table Translation\par 
+\pard\plain \li360\sa120 \f20 rtftohtml will now translate tables into preformatted ascii tables. {\b Tables cannot contain any markup}. That is,  {\b BOLD}, {\i ITALIC} etc. will be ignored. Also tables cannot contain anchors, footnotes,  or hidden text.
+\par 
+The filter will produce a table that has the same number of columns as the input. {\b The size of the columns will be proportional to the sizes of the input columns.}
+ Note that there is no guarantee that text that fit in your original table will still fit in the formatted version. This is because the point size of input may not be proportional to the fixed size 80-characters per-
+column output. If you find that you do not like the look of the formatted table - you must re-size the columns in your RTF source. \par 
+Columns are {\b always} separated by two blanks.\par 
+Columns can be left justified, right justified or centered.\par 
+Merged cells are allowed.\par 
+There is {\b no} support for decimal aligned data. This just looked too hard and prone to error. For now, you will have to make sure that all your data has the same number of trailing digits and stick to right justified text.\par 
+\pard\plain \s254\li180\sb120\sa120\keepn\brdrb\brdrs \b\f20\fs36 A REAL Macintosh interface\par 
+\pard\plain \li360\sa120 \f20 The filter now supports drag-n-drop on the Macintosh!\par 
+Options are set with menu selections! \par 
+The signiture is even registered with Apple!\par 
+\par 
+\pard\plain \s253\li360\sb120\sa120\keepn \b\f20\fs28 To use rtftohtml on the Macintosh:\par 
+\pard\plain \li360\sa120 \f20 Keep all of the translation files (html-trans, ansi-map...) in the same folder as the application.\par 
+Drag any RTF file onto rtftohtml (requires system 7.) {\b The output files will be placed in the same folder as your input file.} If there are any errors in translating your file, the error messages will be put into a file called {\i filename.err} . S
+ome errors will cause rtftohtml to exit, others will not. \par 
+{\b Once rtftohtml is started, it will continue to run}! This allows you to translate many documents at a time. You can drag lots of files onto rtftohtml and it will translate all of them (unless it encounters a fatal translation error.)\par 
+To use non-default translation options, simply start rtftohtml by double clicking on it. Then choose your option from the options menu. These settings will remain in effect until rtftohtml exits. {\b The next time you run rt
+ftohtml you must choose your option settings again.\par 
+}You can open RTF files using {\b Open}... from the {\b File} menu. This will only work for files with an extension of .rtf (or .RTF). If you want to open a file without an extension of .rtf, you must hold down the option key when selecting {\b Open}.
+\par 
+\pard\plain \s253\li360\sb120\sa120\keepn \b\f20\fs28 Options Menu\par 
+\pard\plain \li360\sa120 \f20 The Graphic file extension in the Options menu allows you to change the default extension for graphic files from ".gif" to an extension of your own chooseing.\par 
+The Inline graphics option will (when set) use <IMG SRC=... markup in HTML files for graphics instead of <A HREF=...\par 
+
+The Auto Filenames option when set will put the HTML output in the same folder as the input, with a .HTML extension. If you want to specify your own filenames, turn this option off. Then rtftohtml will prompt you for an output file name each time a file is
+ translated.\par 
+\pard\plain \s254\li180\sb120\sa120\keepn\brdrb\brdrs \b\f20\fs36 Miscellaneous Features\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab All paragraph styles that appear in a document but that do not appear in the html-trans file will be treated as a warning. T
+his provides you with a list of paragraph styles that you can then add to html-trans.\par 
+\bullet \tab 
+You can tell rtftohtml to discard all of the text with a given paragraph style. This is done by using the "_Discard" in the .PMatch table. For exampl, the following entries will discard all text with paragraph styles "toc 1-5" and "index 1-5". (Word uses
+ these paragraph styles for generating a table of contents and index. Since these contain page numbers which do not apply to HTML documents, you may wish to discard them.)\par 
+\pard\plain \s9\keep\tx880\tx1740\tx2620\tx3480\tx4320\tx5220\tx6060\tx6940\tx7780 \f22\fs20 "toc 1",0,"_Discard"\par 
+"toc 2",0,"_Discard"\par 
+"toc 3",0,"_Discard"\par 
+"toc 4",0,"_Discard"\par 
+"toc 5",0,"_Discard"\par 
+"index 1",0,"_Discard"\par 
+"index 2",0,"_Discard"\par 
+"index 3",0,"_Discard"\par 
+"index 4",0,"_Discard"\par 
+"index 5",0,"_Discard"\par 
+\pard\plain \s254\li180\sb120\sa120\keepn\brdrb\brdrs \b\f20\fs36 Bugs Fixed in 2.5\par 
+\pard\plain \li360\sa120 \f20 rtftohtml was generating "unknown symbol" errors for optional destinations (RTF with a markup of \{\\*\\xxx ... \}
+ The convention for RTF readers is that any optional destination that a reader does not understand should be silently ignored. This bug was also causing extra text to be inserted into HTML files.\par 
+\par 
+\par 
+\pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 Bugs fixed in 2.1\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab 
+rtftohtml generates empty anchors <a name="myname"></a> where the "Named Anchor" feature is used. Xmosaic does not support empty anchors, although other browsers (including Mac Mosaic) do. I have reported this as a bug to the good folks at NCSA. I am hop
+ing that they fix this so that I don't have to patch the filter. Stay tuned. - The good folks at NCSA told me not to wait, so I revised rtftohtml to create anchors with an extra space:  <a\~name="myname"> </a> \par 
+\bullet \tab Imbedded object were not appearing in the HTML output. Now they are!\par 
+\bullet \tab Fixed the usage line to reflect that -H is not a legal option.\par 
+\bullet \tab Windows Metafiles were given an extension of ".meta". That has been changed to ".wmf".\par 
+\bullet \tab The Mac version failed to find html-trans, html-map when the input file was not in the same folder.\par 
+\bullet \tab Nested lists were not working properly. How did I miss that one :?>\par 
+\pard\plain \s255\li360\sb240\sa240\keepn\brdrb\brdrs \b\f20\fs48 Bugs fixed in 2.0.1\par 
+\pard\plain \s4\fi-280\li900\sa120\tx900 \f20 \bullet \tab RTF files created without a leading /pard caused aborts\par 
+\bullet \tab Graphics within a HOT text area caused failures instead of generating IMG links\par 
+\bullet \tab Anchor names and Hot Text links were getting an extra ">" inserted.\par 
+\bullet \tab Footnotes incorrectly got a "#" at the anchor points.\par 
+\bullet \tab Footnotes reference marks were generated without any separating text or space. Should be generated as [1]\par 
+\bullet \tab filter did not understand \\tql which is generated in FrameMaker RTF output. This has been added to reader.c and rtf.h in the source directory. Eventually, these changes will be incoporated in an official distribution of the
+ RTF package. (Binary versions of rtftohtml contain the fix)\par 
+\bullet \tab FrameMaker RTF assumes that \\pard implies \\plain - MS Word for the Mac appears to handle it that way, so I have updated the filter.\par 
+\par 
+\par 
+}

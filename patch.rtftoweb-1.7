@@ -1,0 +1,1195 @@
+*** ./original/rtftohtml.c	Sat Nov  5 21:28:08 1994
+--- ./working/rtftohtml.c	Mon Feb  5 19:05:49 1996
+***************
+*** 17,20 ****
+--- 17,26 ----
+  # include	"rtf.h"
+  # include	"rtftohtml.h"
++ 
++ #ifdef CB_ADD
++ # include	<string.h>
++ # include	"hier.h"
++ #endif
++ 
+  static void	UnknownClass ();
+  static void	GroupClass ();
+***************
+*** 27,31 ****
+--- 33,41 ----
+  static void	TblAttr ();
+  static void	ParAttr ();
++ #ifndef CB_ADD
+  static void	CharAttr ();
++ #else
++ void	CharAttr ();
++ #endif
+  static void	PictAttr ();
+  static void	NeXTGrAttr ();
+***************
+*** 64,68 ****
+  int ToCLev;					/* Table of Contents Level */
+  int CurFNote;
+! 
+  
+  int destination=rtfMaxDestination;				/* The current input destination */
+--- 74,80 ----
+  int ToCLev;					/* Table of Contents Level */
+  int CurFNote;
+! #ifdef CB_ADD
+! int Center = 0;
+! #endif
+  
+  int destination=rtfMaxDestination;				/* The current input destination */
+***************
+*** 149,152 ****
+--- 161,169 ----
+  		OptDestFound=0;
+  
++ #		ifdef CB_ADD
++ 		Center = 0;
++ 		hierPass = 0;
++ #		endif
++ 
+          --argc;
+          ++argv;
+***************
+*** 160,165 ****
+--- 177,184 ----
+  	    } else if (strcmp ("-G", *argv) == 0){
+  	    	WriteGraf=0;
++ #ifndef	    CB_ADD
+  	    } else if (strcmp ("-T", *argv) == 0){
+  	    	ToC=0;
++ #endif
+  	    } else if (strcmp ("-o", *argv) == 0){
+                  if (argc < 2) {
+***************
+*** 189,193 ****
+--- 208,269 ----
+              strncpy(PFileExt,*argv,(size_t) 15);
+              PFileExt[15] = '\0';
++ 
++ #ifdef CB_ADD
++       	    } else if (strncmp ("-h", *argv, 2) == 0) {	
++ 		/* hierarchically? */
++ 	 	hierPass = 1;
++ 	 	if (strlen (*argv) > 2) {
++  	    	    hierDepth = atoi (&(*argv)[2]);
++ 	 	}
++       	    } else if (strcmp ("-c", *argv) == 0) {	
++ 		/* generate contents? */
++ 	 	hierContents = 1;
++ 	    } else if (strcmp ("-t", *argv) == 0) {	
++ 		/* refs on top? */
++ 	 	hierRefsOnTop = 1;
++       	    } else if (strcmp ("-s", *argv) == 0) {	
++ 		/* short filenames? */
++ 	 	hierShortFileNames = 1;
++       	    } else if (strcmp ("-F", *argv) == 0) {	
++ 		/* funky Netscape frames feature? */
++ 	 	hierUseFrames = 1;
++ 
++ 	    } else if (strcmp ("-T", *argv) == 0) {	
++ 		/* title for document */
++ 		if (argc < 2) {
++ 		    return (-1);
++ 		}
++ 		--argc;
++ 		++argv;
++ 		hierSetDocTitle (*argv);
++ 
++ 	    } else if (strcmp ("-N", *argv) == 0) {	
++ 		/* navigation panel customization file */
++ 		if (argc < 2) {
++ 		    return (-1);
++ 		}
++ 		--argc;
++ 		++argv;
++ 		hierSetNavPanel (*argv);
++ 
++ 	    } else if (strcmp ("-X", *argv) == 0) {	
++ 		/* text of index anchors - only needed by Mosaic */
++ 		if (argc < 2) {
++ 		    return (-1);
++ 		}
++ 		--argc;
++ 		++argv;
++ 		hierSetIndexAnchor (*argv);
++ 
++      	    } else if (strcmp ("-x", *argv) == 0) {	
++ 		/* generate index? */
++ 	 	hierIndex = 1;
++ #endif /* CB_ADD */
++ 
+  	    } else {
++ #			ifdef CB_ADD
++ 	 		strcpy (rtfTextBuf, "");  
++ 				/* ^ this really is of no interest now */
++ #			endif
+  			RTFMsg ("Don't understand %s option.\n", *argv);
+  			return (-1);
+***************
+*** 195,199 ****
+  	    --argc;
+  	    ++argv;
+! 	}
+  	if (argc > 0)
+  	{
+--- 271,279 ----
+  	    --argc;
+  	    ++argv;
+! 	} /* end of command line processing */
+!        
+! #	ifdef CB_ADD
+! 	ToC = 0;	/* ToC conflicts with rtftoweb's mechanism. */
+! #	endif
+  	if (argc > 0)
+  	{
+***************
+*** 220,228 ****
+                  }   
+  	} else {
+! 		RTFMsg("No input file given\n");
+  		return (0);
+  	}
+  
+  	strcpy(FPrefixR, Basename (FPrefix));
+  	HTMLInit();
+  	
+--- 300,324 ----
+                  }   
+  	} else {
+! 		RTFMsg("No input file given.\n");
+! #		ifdef CB_ADD
+! 		return (-1);
+! #		else
+  		return (0);
++ #		endif
+  	}
+  
++ #       ifdef CB_ADD
++ 	if (hierShortFileNames)
++ 	    hierCutShort (FPrefix);
++ #       endif
+  	strcpy(FPrefixR, Basename (FPrefix));
++ 
++ #	ifdef CB_ADD
++    	/* this is where we start the preprocessing pass to extract the 
++ 	   hierarchical structure of the RTF-file */
++ 	if (hierPass)
++ 	    doHierPass();
++ #	endif
++ 
+  	HTMLInit();
+  	
+***************
+*** 235,242 ****
+--- 331,348 ----
+  
+  	/* de-install default destination callbacks */
++ #	ifdef CB_ADD
++ 	if (!hierPass) { /* hierPass needs the following! */
++       	    RTFSetDestinationCallback (rtfInfo, NULL);
++       	    RTFSetDestinationCallback (rtfColorTbl, NULL);
++    	}
++ 	RTFSetDestinationCallback(rtfPict, NULL);
++ 	RTFSetDestinationCallback(rtfObject, NULL);
++ 
++ #	else
+  	RTFSetDestinationCallback(rtfInfo, NULL);
+  	RTFSetDestinationCallback(rtfPict, NULL);
+  	RTFSetDestinationCallback(rtfObject, NULL);
+  	RTFSetDestinationCallback(rtfColorTbl, NULL);
++ #	endif
+  
+          /*               
+***************
+*** 814,817 ****
+--- 920,927 ----
+  static void ParAttr ()
+  {
++ #ifdef CB_ADD
++ int level = 0;
++ #endif
++ 
+  	RTFStyle *newstyle;
+  	int i;
+***************
+*** 823,830 ****
+--- 933,955 ----
+  		TStyle = stylePlain;
+  		inTable=0;
++ 
++ #		ifdef CB_ADD
++ 		if (Center == 2) {
++ 		  hierPrint ("</center>");
++ 		  Center = 0;
++ 		}
++ 		/* need this to prevent <tt> from showing up after */
++ 		/* preformatted sections (Times should always be ok) */
++       		TFont = "Times";	
++       		if (hierPass)
++ 	 	    if (inHeading && !groupInHeading)
++ 	    		inHeading = 0;
++ #		endif
++ 
+  		break;
+  	case rtfStyleNum:
+  		/* When we call RTFExpandStyle, ParAttr will get recursively
+  		called. We only perform processing on the outermost style. */
++ #		ifndef CB_ADD
+  		if(parnest==0){
+  		    newstyle=RTFGetStyle(rtfParam);
+***************
+*** 836,839 ****
+--- 961,988 ----
+  				parnest--;
+  		}
++ 
++ #		else
++       		if (hierPass) {
++ 	 	    level = hierHeadingLevel (rtfParam, NULL, NULL);
++       		}
++       		if (level) {
++ 	 	    if (!inHeading) {
++ 	    		inHeading = 1;
++ 	    		hierChangeOutFile ();
++ 			resetParNumText ();
++ 	 	    }
++       		} else {
++       	 	    if (parnest == 0) {
++ 	    		newstyle = RTFGetStyle (rtfParam);
++ 	    		if (newstyle == (RTFStyle *) NULL)
++ 	       		    break;
++ 	    	        ParStyle = newstyle->rtfSName;
++ 	    		parnest++;
++ 	    		RTFExpandStyle (rtfParam);
++ 	    		parnest--;
++          	    }
++       		}
++ #		endif
++ 
+  		break;
+  	case rtfQuadLeft:
+***************
+*** 848,851 ****
+--- 997,1005 ----
+  	case rtfQuadCenter:
+  		cell[cellno].just=AdjCpad;
++ #ifdef CB_ADD
++ 		if (!inTable && !Center) {
++ 		  Center = 1;
++ 		}
++ #endif
+  		break;
+  	case rtfFirstIndent:
+***************
+*** 863,866 ****
+--- 1017,1025 ----
+  	case rtfInTable:
+  		inTable=1;
++ #ifdef CB_ADD
++ 		if (Center == 2)
++ 		    hierPrint ("</center>");
++ 		Center = 0;
++ #endif
+  		break;
+  	case rtfKeep:
+***************
+*** 929,933 ****
+--- 1088,1096 ----
+  */
+  
++ #ifndef CB_ADD
+  static void CharAttr ()
++ #else
++ void CharAttr ()
++ #endif
+  {
+  RTFFont		*fp;
+***************
+*** 1047,1050 ****
+--- 1210,1214 ----
+  		break;
+  	case rtfSubScript:
++ 	case rtfSubScrShrink:  /* added by CB, 2.2.96 */
+  		if(turnOn){
+  		    TStyle |= styleSubScript;
+***************
+*** 1056,1064 ****
+--- 1220,1244 ----
+  		break;
+  	case rtfForeColor:
++ #		ifndef CB_ADD
+  		break;
++ 
++ #		else
++       		if (hierPass == 2 && destination != rtfParNumText) {
++ 	 	    if (colorIsRed (rtfParam)) {
++ 			/* cross references are marked with the color red */
++ 	    		inHeadingRef = 1;
++ 	    		strcpy (headingRef, "");
++ 	 	    } else
++ 	    		inHeadingRef = 0;
++       		}
++ 		break;
++ #		endif
++ 
+  	case rtfBackColor:
+  		break;
+  	}
+  }
++ void 
++ NabPicture();
+  
+  static void PictAttr ()
+***************
+*** 1225,1228 ****
+--- 1405,1411 ----
+      NewState->lastcell=lastcell;
+      NewState->ToCLev=ToCLev;
++ #ifdef CB_ADD
++     NewState->Center = Center;
++ #endif    
+      IStyle_Chg=1;    
+      return(NewState);
+***************
+*** 1237,1240 ****
+--- 1420,1431 ----
+  	ISS=SaveIState();
+      ISS->Next=Current;
++ #		ifdef CB_ADD
++     if (hierPass) {
++ 	if (inHeading) {
++ 	    groupInHeading = 1;
++ 	    groupInHeadingCount++;
++ 	}
++     }
++ #		endif
+  }
+  void
+***************
+*** 1254,1257 ****
+--- 1445,1451 ----
+      	lastcell=TheState->lastcell;
+      }
++ #ifdef CB_ADD
++     Center = TheState->Center;
++ #endif
+      destination=TheState->destination;
+      RTFFree(TheState);
+***************
+*** 1261,1264 ****
+--- 1455,1489 ----
+  PopIState(){
+  	InStateStack *Next;
++ 
++ #	ifdef CB_ADD
++    	if (hierPass) {
++ 	    if (groupInHeadingCount) {
++ 		groupInHeadingCount--;
++ 	    }
++ 	    if (groupInHeadingCount == 0 && groupInHeading)
++ 		groupInHeading = 0;
++ 	    
++       	    if (inHeadingRef) {
++ 	 	inHeadingRef = 0;
++ 	 	hierResolve ();
++       	    }
++ 
++       	    if (hierIndex && ISS)
++          	if (destination == rtfIndex && ISS->destination != rtfIndex &&
++ 	    		strlen (indexEntry))
++ 	    	    addIndexEntry ();
++    	}
++ 	if (Center == 2 && ISS) {
++ 	    if (!ISS->Center)
++ 		hierPrint ("</center>");
++ 	    else if (ISS->Center == 1)
++ 		/* this is essential: if there has been text in the last
++ 		   stack frame, advance the Center counter of the current
++ 		   frame to 2 */
++ 		ISS->Center = 2;
++ 	}
++ 		
++ #	endif
++ 
+      if(ISS==NULL){
+  		RTFPanic ("Input State Stack Popped too many times");
+*** ./original/rtftohtml.h	Sat Nov  5 21:28:09 1994
+--- ./working/rtftohtml.h	Thu Feb  1 22:40:05 1996
+***************
+*** 93,96 ****
+--- 93,100 ----
+  	int lastcell;				/* last cell number */
+  	int ToCLev;					/* Table of Contents Level */
++ #ifdef CB_ADD
++         int Center;          /* whether to center the current text */
++ #endif
++  
+      struct InStateRec *Next;
+  } InStateStack;
+***************
+*** 125,128 ****
+--- 129,139 ----
+  void	PutHTML ();
+  
++ #ifdef CB_ADD
++ void FlushHTML ();
++ void UndoMarkup ();
++ void hierPrint ();
++ void PutParNumText ();
++ char *MapChar ();
++ #endif
+  
+  /* output file types */
+***************
+*** 172,175 ****
+--- 183,189 ----
+  extern int destination;		/* The current input destination */
+  extern RTFFont *fp;			/* Actual Font Pointer */
++ #ifdef CB_ADD
++ extern int Center;
++ #endif
+  
+  extern InStateStack *ISS;
+*** ./original/html-unix.c	Sat Nov  5 21:27:49 1994
+--- ./working/html-unix.c	Sun May 28 10:53:02 1995
+***************
+*** 10,13 ****
+--- 10,16 ----
+  # include	"rtf-unix.h"
+  # include	"rtftohtml.h"
++ #ifdef CB_ADD
++ # include	"hier.h"
++ #endif
+  
+  
+***************
+*** 35,39 ****
+--- 38,46 ----
+  		exit (1);
+  	case -1:		/* unsuccessful; print usage message and die*/
++ #		ifndef CB_ADD
+  		RTFPanic ("Usage: %s", usage);
++ #		else
++ 		RTFPanic ("%s", hierUsageString ());
++ #		endif
+  	}
+  	exit (0);
+*** ./original/htmlout.c	Sat Nov  5 21:27:49 1994
+--- ./working/htmlout.c	Mon Feb  5 19:53:26 1996
+***************
+*** 3,11 ****
+--- 3,18 ----
+  #include	"rtftohtml.h"
+  #include	"string.h"
++ 
++ #ifdef CB_ADD
++ #include	"hier.h"
++ #endif
++ 
+  static void 	AppendText();
+  
+  
+  static void	PutHex ();
++ #ifndef CB_ADD
+  static char	*MapChar();
++ #endif /* ifdef CB_ADD, MapChar is declared in rtftohtml.h */
+  
+  #define MAXNEST 8
+***************
+*** 166,169 ****
+--- 173,180 ----
+  	}
+  	for(i=0;i<lp;i++)ob[i]=' ';
++ 	if (br == w && !EntIsOne)
++ 	  /* don't lose the last character from cp! */
++ 	  for(j=0;j<br+1;i++,j++)ob[i]=cp[j];
++ 	else
+  	for(j=0;j<br;i++,j++)ob[i]=cp[j];
+  	for(;i<rp;i++)ob[i]=' ';
+***************
+*** 181,184 ****
+--- 192,201 ----
+  	/* If writing to a table, just save up the text */
+  	if(!wrap){
++ #ifdef CB_ADD
++ 	    if (OD->TSpecial == MTHref && strlen(s) == 1) {
++ 		strcat (anchorBuf, s);
++ 		return;
++ 	    }
++ #endif
+  		if(OD->cpos>0){
+  			OD->wbuff[OD->cpos]='\0';
+***************
+*** 229,238 ****
+--- 246,265 ----
+  {
+  	int i;
++ #ifdef CB_ADD
++ static int fnFileInit = 0;
++ #endif
+  
+  	if (LineBuffer == (char *) NULL
+  			&& (LineBuffer = RTFAlloc (512)) == (char *) NULL)
+  		RTFPanic ("cannot allocate line buffer.");
++ #ifdef CB_ADD
++ 	if (hierPass < 2) {
++ 	    for(i=0;i<256;i++)
++ 		badstyles[i]=NULL;
++ 	}
++ #else
+  	for(i=0;i<256;i++)
+  		badstyles[i]=NULL;
++ #endif
+  	HName.used=0;
+  	HHref.used=0;
+***************
+*** 241,251 ****
+--- 268,295 ----
+  	SkipCol.used=0;
+  	File1=EmptyFD;
++ #ifndef CB_ADD
+  	Footnote=EmptyFD;
++ #else
++ 	if (!fnFileInit)
++ 	    Footnote=EmptyFD;	/* this shouldn't be necessary anyway */
++ #endif
+  	ToCFile=EmptyFD;
++ #ifndef CB_ADD
+  	outfuniq=0;
+  	uniqnum=0;
++ #else
++ 	if (!fnFileInit) {
++ 	  outfuniq=0;
++ 	  uniqnum = 0;
++ 	}
++ #endif
+  	ToCidx=1;
+  	ToCText=0;
++ #ifndef CB_ADD
++ 	anyfoot=0;
++ #else
++ 	if (!hierPass || !hierIsChangingFile)
+  	anyfoot=0;
++ #endif
+  	anyTOC=0;
+  	InBody = 0;
+***************
+*** 269,277 ****
+  
+  	
+      strcpy(File1.filename, OutfileName);
+      if (OutfileName[0] != '\0') {
+! 	File1.outfd = OpenOutputFile(OutfileName, "w",FTTEXT);
+  	if (File1.outfd == NULL) {
+! 	    RTFPanic ("Open of %s Failed", OutfileName);
+  	}
+      } else {
+--- 313,328 ----
+  
+  	
++ #ifndef CB_ADD	
+      strcpy(File1.filename, OutfileName);
++ #else
++     if (hierPass)
++        strcpy(File1.filename, hierOutFile());
++     else
++     strcpy(File1.filename, OutfileName);
++ #endif
+      if (OutfileName[0] != '\0') {
+! 	File1.outfd = OpenOutputFile(File1.filename, "w",FTTEXT);
+  	if (File1.outfd == NULL) {
+! 	    RTFPanic ("Open of %s Failed", File1.filename);
+  	}
+      } else {
+***************
+*** 279,282 ****
+--- 330,334 ----
+      }
+      /* open a file for footnotes */
++ #ifndef CB_ADD
+      sprintf(Footnote.filename, "%s_fn.html", FPrefix);
+  	Footnote.outfd = OpenOutputFile(Footnote.filename, "w",FTTEXT);
+***************
+*** 284,287 ****
+--- 336,351 ----
+  	    RTFPanic ("Open of %s Failed", Footnote.filename);
+  	}
++ #else
++     if (!fnFileInit) {
++ 	if (!hierShortFileNames)
++ 	    sprintf(Footnote.filename, "%s_fn.html", FPrefix);
++ 	else
++ 	    sprintf(Footnote.filename, "%sfn.htm", FPrefix);
++ 	Footnote.outfd = OpenOutputFile(Footnote.filename, "w",FTTEXT);
++ 	if (Footnote.outfd == NULL) {
++ 	    RTFPanic ("Open of %s Failed", Footnote.filename);
++ 	}
++     }
++ #endif
+  	if(ToC){
+  	    /* open a file for Table of Contents */
+***************
+*** 297,301 ****
+  		putwrap("</head><body>", &ToCFile,ToCFile.wrap);
+  	}
+!     putwrap("<html><head>", &File1,File1.wrap);
+      putwrap("<!-- This document was created from RTF source by rtftohtml version ", &File1,File1.wrap);
+      putwrap(PVers, &File1,File1.wrap);
+--- 361,367 ----
+  		putwrap("</head><body>", &ToCFile,ToCFile.wrap);
+  	}
+! 
+! #ifndef CB_ADD
+!     putwrap("<html><head>\n", &File1,File1.wrap);
+      putwrap("<!-- This document was created from RTF source by rtftohtml version ", &File1,File1.wrap);
+      putwrap(PVers, &File1,File1.wrap);
+***************
+*** 306,309 ****
+--- 372,392 ----
+      putwrap(" -->", &Footnote,Footnote.wrap);
+  	putwrap("</head><body>", &Footnote,Footnote.wrap);
++ #else
++     if (hierPass) {
++ 	hierFile = File1.outfd;
++ 	hierProlog (File1.outfd);
++     }
++     else {
++     	putwrap("<html><head>\n", &File1,File1.wrap);
++ 	putwrap(hierCreationString (), &File1,File1.wrap);
++     }
++     if (!fnFileInit) {
++     	putwrap("<html><head>\n", &Footnote,Footnote.wrap);
++     	putwrap(hierCreationString (), &Footnote,Footnote.wrap);
++ 	putwrap("<title>Footnotes</title></head><body>\n",
++ 		&Footnote,Footnote.wrap);
++ 	fnFileInit = 1;
++     }
++ #endif
+  }
+  static void
+***************
+*** 320,323 ****
+--- 403,407 ----
+      ParStyle=PMatchArr[0].PStyle;
+      TestStyle(&File1);
++ #ifndef CB_ADD
+  	if(anyfoot){	/* We have a footnote */
+  	    putwrap("</body></html>", &Footnote,0);
+***************
+*** 327,330 ****
+--- 411,415 ----
+  		remove (Footnote.filename); 
+  	}
++ #endif
+  	if(ToC){
+  		if(anyTOC){	/* We have a Table of Contents */
+***************
+*** 340,343 ****
+--- 425,453 ----
+  		}
+  	}
++ 
++ #ifdef CB_ADD
++     FlushHTML ();
++     if (hierPass) {
++ 	hierEpilog (File1.outfd);
++         if (hierIndex) {
++ 	    if (!hierIsChangingFile) {
++ 		/* then we've been called by the wrapper */
++ 		generateIndex (0);
++ 		if (hierUseFrames)
++ 		    generateIndex (1);
++ 	    }
++ 	}
++     }
++     if (!hierPass || !hierIsChangingFile) {
++ 	if(anyfoot){	/* We have a footnote */
++ 	    putwrap("</body></html>", &Footnote,0);
++ 		fclose(Footnote.outfd);
++ 	} else {
++ 		fclose(Footnote.outfd);
++ 		remove (Footnote.filename); 
++ 	}
++     }
++ #endif
++ 
+      putwrap("</body></html>", &File1,0);
+      if (File1.outfd != stdout)
+***************
+*** 378,381 ****
+--- 488,492 ----
+  			break;
+  	    case rtfBookmarkStart:
++ #ifndef CB_ADD
+  	    	if(BkName.used>0){
+  	    		sprintf(LineBuffer,"<a name=\"%s\">",BkName.ptr);
+***************
+*** 386,392 ****
+--- 497,506 ----
+  	    		putwrap(LineBuffer,OD,OD->wrap);
+  	    	}
++ #endif
+  			break;
+  	    case rtfBookmarkEnd:
++ #ifndef CB_ADD
+  	    	putwrap("</a>",OD,OD->wrap);
++ #endif
+  			break;
+  	    }
+***************
+*** 642,650 ****
+--- 756,773 ----
+  	     * the head section.
+  	     */
++ #ifndef CB_ADD
+  	    if (Title.used) {
++ #else
++ 	    if (Title.used && !hierPass) {
++ #endif
+  		sprintf(LineBuffer,"<title>%s</title>", Title.ptr);
+  		putwrap(LineBuffer, &File1,1);
+  	    }
++ #ifndef CB_ADD
+  	    putwrap("</head><body>", &File1,1);
++ #else
++ 	    if (!hierPass)
++ 	    putwrap("</head><body>", &File1,1);
++ #endif
+  	    InBody = 1;
+  	}
+***************
+*** 722,726 ****
+--- 845,860 ----
+  	    	break;
+  	    case MTHref:
++ #ifndef CB_ADD
++ 		    putwrap("\">", OD,0);
++ #else
++ 		    if (hierPass) {
++ 			if (*anchorBuf) {
++ 			    putwrap (FileOfAnchor (anchorBuf), OD, 0);
++ 			    putwrap (anchorBuf, OD, 0);
++ 			}
++ 			putwrap ("\">", OD, 0);
++ 		    } else
+  			putwrap("\">", OD,0);
++ #endif
+  		    if(OD->TSpecial!=MTHot){
+  		    	RTFMsg ("Error, at end of href, hot text not found\n");
+***************
+*** 766,769 ****
+--- 900,906 ----
+  				putwrap("<a href=\"", OD,0);
+  				OD->wrap=0;
++ #ifdef CB_ADD
++ 				anchorBuf[0] = '\0';
++ #endif
+  		   		break;
+  		    case MTHot:
+***************
+*** 780,784 ****
+--- 917,928 ----
+  				if (OD == &File1) {
+  					anyfoot=1;
++ #ifndef CBADD					
++ 					sprintf(LineBuffer,"<a href=\"%s_fn.html#fn%d\">[", FPrefixR,uniqnum);
++ #else
++ 					if (!hierShortFileNames)
+  					    sprintf(LineBuffer,"<a href=\"%s_fn.html#fn%d\">[", FPrefixR,uniqnum);
++ 					else
++ 					    sprintf(LineBuffer,"<a href=\"%sfn.htm#fn%d\">[", FPrefixR,uniqnum);
++ #endif					
+  					putwrap(LineBuffer,OD,OD->wrap);
+  				} else {
+***************
+*** 1066,1069 ****
+--- 1210,1219 ----
+  	AppendText(&Title, p);
+  	return;
++ #ifdef CB_ADD
++     case rtfIndex:
++         if (hierPass && hierIndex)
++ 	   strcat (indexEntry, p);
++ 	return;
++ #endif
+      case rtfInfo:
+      case rtfISubject:
+***************
+*** 1180,1188 ****
+--- 1330,1399 ----
+  {
+      char *p;
++ 
++ #ifndef CB_ADD
+      p = MapChar(rtfMinor);
+      PutHTMLString(p);
++ #else
++     p = MapChar(rtfMinor);
++     if (hierPass) {
++         if (inHeading) {
++ 	    return;
++ 	} else {
++ 	    hierHasText = 1;
++ 	    if (inHeadingRef) {
++ 	       strcat (headingRef, MapChar(rtfMinor));
++ 	       return;
++ 	    }
++ 	}
++     }
++     if (Center == 1) {
++ 	Center = 2;
++ 	hierPrint ("<center>");
++     }
++ 
++     PutHTMLString(p);
++ #endif
+  }
+  
+  
++ #ifdef CB_ADD
++ void FlushHTML ()
++ {
++   if (File1.NeedPar)
++     DoPmark (&File1);	/* Phew... now I got it. */
++   if (File1.cpos > 0) {
++       File1.wbuff[File1.cpos] = '\0';
++       fputs (File1.wbuff,File1.outfd);
++   }
++   File1.cpos= -1;
++ }
++ 
++ void UndoMarkup ()
++ {
++   /* Fake some plain text so that test-style will undo all
++ 	 current markup. */
++   TFont="--Not a Font--";
++   TStyle=0;
++   TSize=9999;
++   ParStyle=PMatchArr[0].PStyle;
++   TestStyle(&File1);
++ }
++ 
++ void hierPrint (str) 
++ char *str;
++ {
++ 	if (File1.NeedPar)
++ 	    DoPmark (&File1);
++ 	putwrap (str, &File1, File1.wrap);
++ }
++ 
++ void resetParNumText ()
++ {
++     PNSave.SD.used = 0;
++     PNSave.used = 0;
++     PNText = 0;
++ }
++ #endif
++ 
+  
+  /*
+***************
+*** 1191,1195 ****
+--- 1402,1410 ----
+   */
+  
++ #ifndef CB_ADD
+  static char *
++ #else
++ char * 		/* hier.c needs this! */
++ #endif
+  MapChar(stdCode)
+      int stdCode;
+*** ./original/html-map	Sat Nov  5 21:28:12 1994
+--- ./working/html-map	Sat Jan 27 18:30:14 1996
+***************
+*** 108,112 ****
+  # non-ASCII
+  
+! OE		&OElig;
+  acute		"'"
+  angleleft	[
+--- 108,112 ----
+  # non-ASCII
+  
+! OE		OE
+  acute		"'"
+  angleleft	[
+***************
+*** 120,131 ****
+  arrowright	-&gt;
+  bullet		*
+! cent		cents
+  circumflex	^
+! copyright	(c)
+! copyrightsans	(c)
+  dagger		+
+! degree		deg.
+  delta		d
+! divide		/
+  dotlessi	i
+  ellipsis	...
+--- 120,131 ----
+  arrowright	-&gt;
+  bullet		*
+! cent		&#162;
+  circumflex	^
+! copyright	&#169;
+! copyrightsans	&#169;
+  dagger		+
+! degree		&#176;
+  delta		d
+! divide		&#247;
+  dotlessi	i
+  ellipsis	...
+***************
+*** 137,146 ****
+  grave		"`"
+  greaterequal	&gt;=
+! guillemotleft	&lt;&lt;
+! guillemotright	&gt;&gt;
+  guilsinglleft	&lt;
+  guilsinglright	&gt;
+  lessequal	&lt;=
+! logicalnot	~
+  mathasterisk	*
+  mathequal	=
+--- 137,146 ----
+  grave		"`"
+  greaterequal	&gt;=
+! guillemotleft	&#171;
+! guillemotright	&#187;
+  guilsinglleft	&lt;
+  guilsinglright	&gt;
+  lessequal	&lt;=
+! logicalnot	&#172;
+  mathasterisk	*
+  mathequal	=
+***************
+*** 150,170 ****
+  mathtilde	~
+  minus		-
+! mu		u
+! multiply	x
+  nobrkhyphen	-
+! nobrkspace	&nbsp;
+  notequal	!=
+  oe		oe
+! onehalf		1/2
+! onequarter	1/4
+  periodcentered	.
+! plusminus	+/-
+  quotedblbase	,,
+  quotedblleft	'"'
+  quotedblright	'"'
+  quotesinglbase	,
+! registered	reg.
+! registersans	reg.
+! threequarters	3/4
+  tilde		~
+  trademark	(TM)
+--- 150,170 ----
+  mathtilde	~
+  minus		-
+! mu		&#181;
+! multiply	&#215;
+  nobrkhyphen	-
+! nobrkspace	&#160;
+  notequal	!=
+  oe		oe
+! onehalf		&#189;
+! onequarter	&#188;
+  periodcentered	.
+! plusminus	&#177;
+  quotedblbase	,,
+  quotedblleft	'"'
+  quotedblright	'"'
+  quotesinglbase	,
+! registered	&#174;
+! registersans	&#174;
+! threequarters	&#190;
+  tilde		~
+  trademark	(TM)
+***************
+*** 174,181 ****
+  Agrave      &Agrave;
+  Aring       &Aring;
+! #Atilde		&Atilde;
+  Adieresis	&Auml;
+  Ccedilla	&Ccedil;
+! #ETH		&ETH;
+  Eacute	&Eacute;
+  Ecircumflex	&Ecirc;
+--- 174,181 ----
+  Agrave      &Agrave;
+  Aring       &Aring;
+! Atilde		&#195;
+  Adieresis	&Auml;
+  Ccedilla	&Ccedil;
+! Eth		&#208;
+  Eacute	&Eacute;
+  Ecircumflex	&Ecirc;
+***************
+*** 191,202 ****
+  Ograve	&Ograve;
+  Oslash	&Oslash;
+! #Otilde	&Otilde;
+  Odieresis	&Ouml;
+! #THORN	&THORN;
+  Uacute	&Uacute;
+  Ucircumflex	&Ucirc;
+  Ugrave	&Ugrave;
+  Udieresis	&Uuml;
+! #Yacute	&Yacute;
+  ae		&aelig;
+  aacute	&aacute;
+--- 191,202 ----
+  Ograve	&Ograve;
+  Oslash	&Oslash;
+! Otilde	&#213;
+  Odieresis	&Ouml;
+! Thorn	&#222;
+  Uacute	&Uacute;
+  Ucircumflex	&Ucirc;
+  Ugrave	&Ugrave;
+  Udieresis	&Uuml;
+! Yacute	&#221;
+  ae		&aelig;
+  aacute	&aacute;
+***************
+*** 210,214 ****
+  ecircumflex	&ecirc;
+  egrave	&egrave;
+! #eth	&eth;
+  edieresis	&euml;
+  iacute	&iacute;
+--- 210,214 ----
+  ecircumflex	&ecirc;
+  egrave	&egrave;
+! eth	&#240;
+  edieresis	&euml;
+  iacute	&iacute;
+***************
+*** 224,228 ****
+  odieresis	&ouml;
+  germandbls	&szlig;
+! #thorn	&thorn;
+  uacute	&uacute;
+  ucircumflex	&ucirc;
+--- 224,228 ----
+  odieresis	&ouml;
+  germandbls	&szlig;
+! thorn	&#254;
+  uacute	&uacute;
+  ucircumflex	&ucirc;
+***************
+*** 232,233 ****
+--- 232,255 ----
+  ydieresis	&yuml;
+  newline	<br>
++ ordfeminine     &#170;
++ ordmasculine    &#186;
++ questiondown    &#191;
++ exclamdown      &#161;
++ section         &#167;
++ onesuperior     &#185;
++ twosuperior     &#178;
++ threesuperior   &#179;
++ sterling        &#163;
++ currency        &#164;
++ yen             &#165;
++ brokenbar       &#166;
++ dieresis        &#168;
++ opthyphen       &#173;
++ macron          &#175;
++ paragraph       &#182;
++ cedilla         &#184;
++ 
++ 
++ 
++ 
++ 
+*** ./original/html-trans	Sat Nov  5 21:28:12 1994
+--- ./working/html-trans	Thu Feb  1 22:40:05 1996
+***************
+*** 47,50 ****
+--- 47,51 ----
+  "dfn","<dfn>","</dfn>"
+  "sup","<sup>","</sup>"
++ "sub","<sub>","</sub>"
+  
+  # Text Match Table
+***************
+*** 86,95 ****
+--- 87,104 ----
+  
+  # hidden/shadow -> literal
++ # hidden/strikethru -> literal
+  #    v^bDWUHACSOTIB,v^bDWUHACSOTIB
+  "",0,00000010010000,00000010010000,"_Literal"
++ "",0,00000010000100,00000010000100,"_Literal"
++ 
++ # hidden/shadow -> literal
++ #    v^bDWUHACSOTIB,v^bDWUHACSOTIB
++ "",0,00000010000100,00000010000100,"_Literal"
+  
+  # hidden/outline -> Name
++ # hidden/SuperScript -> Name
+  #    v^bDWUHACSOTIB,v^bDWUHACSOTIB
+  "",0,00000010001000,00000010001000,"_Name"
++ "",0,01000010000000,01000010000000,"_Name"
+  
+  # hidden/all other hiddens are discarded
+***************
+*** 100,108 ****
+  "",0,01000000000000,01000000000000,"sup"
+  
+  # Regular matches - You can have multiple of these active
+  
+  # monospace fonts -> tt
+  "Courier",0,00000000000000,00000000000000,"tt"
+! "Monoco",0,00000000000000,00000000000000,"tt"
+  
+  # bold -> bold
+--- 109,122 ----
+  "",0,01000000000000,01000000000000,"sup"
+  
++ # All Subscripts just subscripts
++ #    v^bDWUHACSOTIB,v^bDWUHACSOTIB
++ "",0,10000000000000,10000000000000,"sub"
++ 
+  # Regular matches - You can have multiple of these active
+  
+  # monospace fonts -> tt
+  "Courier",0,00000000000000,00000000000000,"tt"
+! "Courier New",0,00000000000000,00000000000000,"tt"
+! "Monaco",0,00000000000000,00000000000000,"tt"
+  
+  # bold -> bold
+*** ./original/ansi-gen	Sat Nov  5 21:28:12 1994
+--- ./working/ansi-gen	Tue Jan 30 19:52:23 1996
+***************
+*** 116,119 ****
+--- 116,122 ----
+  # non-ASCII characters (128-255)
+  
++ # Added ellipsis (0x85). (Christian Bolik, 30.1.96)
++ 
++ ellipsis	0x85
+  nobrkspace	0xa0
+  exclamdown	0xa1
+*** ./original/ansi-sym	Sat Nov  5 21:28:12 1994
+--- ./working/ansi-sym	Tue Jan 30 19:52:23 1996
+***************
+*** 114,115 ****
+--- 114,121 ----
+  # non-ASCII characters (128-255)
+  
++ # Hm, none?!  I added the most common ones below. (Christian Bolik, 30.1.96)
++ 
++ ellipsis	0x85
++ bullet		0xb7
++ 
++ 

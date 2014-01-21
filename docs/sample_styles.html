@@ -1,0 +1,195 @@
+<html><head><!-- This document was created from RTF source by rtftohtml version
+2.7.5 --><title>Sample rtftohtml Style Sheet</title></head><body><h1>
+Sample rtftohtml Style Sheet</h1>
+This is a sample style sheet produced by Microsoft Word on the Macintosh. It is
+designed to demonstrate the various styles that I use. Of course, you can
+define your own style sheets and use your own style names - but this should be
+a useful example to get you started.<p>
+
+<h1>
+Paragraph Markup<br>
+&lt;H1&gt;This is a Level1 heading</h1>
+<h2>
+&lt;H2&gt;This is a Level2 heading</h2>
+
+<h3>
+&lt;H3&gt;This is a Level3 heading</h3>
+<h4>
+&lt;H4&gt;This is a Level4 heading</h4>
+<h5>
+&lt;H5&gt;This is a Level5 heading</h5>
+<h6>
+&lt;H6&gt;This is a Level6 heading</h6>
+<h2>
+&lt;pre&gt; Following is pre-formatted text</h2>
+
+<pre>
+This is pre-formatted text
+tab	stops	are 	supposed 	to be	about 	8 chars wide
+need a total width of 80 columns and a fixed width font like Courier
+0        1         2         3         4         5        6         7         8
+1234567890123456789012345678901234567890123456789023456789012345678901234567890
+        x       x       x       x       x       x       x       x       x
+	x	x	x	x	x	x	x	x	x
+</pre>
+<h2>
+&lt;address&gt;Following is address text</h2>
+<address><i>Here is an address</i></address>
+<h2>
+&lt;blockquote&gt;Following is blockquote text</h2>
+<blockquote><i>Here is a block quote. Just how long do you thing this should
+be? I don't know - just keep typing until eventually you fill up several
+lines.</i></blockquote><h2>
+&lt;hr&gt; Following is a paragraph containing no text - it generates an
+&lt;hr&gt; markup</h2>
+<hr><p>
+
+<h1>
+Text markup</h1>
+<b>Bold</b><p>
+<i>Italic</i><p>
+<u>Underline</u><p>
+Hidden Text - the text between the parenthesis will be discarded by the filter
+()<p>
+<tt>Monospaced fonts like courier will go to &lt;tt&gt;</tt>
+<h1>
+Features</h1>
+This is a <b>footnote</b><a href="sample_styles_fn.html#fn0">[1]</a> ..<p>
+This is a Picture 
+<IMG SRC="sample_styles1.GIF">
+which will be either inlined or linked to by an HREF.<p>
+This is a picture 
+<a href="#Here"><IMG SRC="sample_styles2.GIF"></a>that
+will be used as the "HOT" part of a hypertext link.<p>
+This is a manually generated hypertext 
+<a href="ftp://ftp.primate.wisc.edu/pub/RTF">link</a>
+to an external document.<p>
+This is a hypertext link to a 
+<a href="#LINK1">target
+</a>somewhere else within the same document. This was created with a
+copy/paste-link.<p>
+This is another hypertext link to a 
+<a href="#TargetName">target</a>
+somewhere else within the same document. This was created manually and the
+target name must be as well.
+
+<pre>
+This is a table          This table has four      right justified  centered      
+                         columns and each                          text          
+                         column will be                                          
+                         translated into a                                       
+                         &lt;pre&gt; block that                                        
+                         roughly approximates                                    
+                         this layout                                             
+This is the second row   Hows it look?            Good?            Bad?          
+of the same table.                                                               
+
+</pre>
+The
+following text will be copied directly to the HTML <i>output</i> file - with
+<b>markup</b> included.<p>
+This is Literal HTML as well - but uses the <b>HTML</b>paragraph style, and is
+therefore more readable.
+<h1>
+Lists</h1>
+In order to create the illusion of nesting within an RTF document, we need to
+create a separate style for each level of indentation. I chose 6 as the maximum
+level of nesting that I care about, but rtftohtml can support as many as you
+want. This yeilds "ol", "ol 1", "ol 2", ... ,"ol 5". Now, in addition we have
+another issue with lists. The HTML bullet and numbered lists will prepend a
+bullet or number to your text. If you already have a bullet or number, you have
+three options:
+<ol>
+<li>	Translate your list elements to the HTML &lt;dl&gt; markup, which allows
+you to preserve the numbers or bullets that you are using in the RTF form of
+the document. This results in some pretty ugly display using Mosaic.
+<li>	Strip off the bullet or number, and translate those list items to
+&lt;ol&gt; or &lt;ul&gt;. This is the recommended option.
+<li>	Don't use any markers in the RTF form of the document and translate to
+&lt;ol&gt; and &lt;ul&gt;.</ol><p>
+Both of these options exist with the rtftohtml filter, and I have default
+styles for each. In order that the filter can decide where a bullet or number
+ends, we need a separator. The filter expects a tab character to be used. It is
+<b>REALLY</b> important that if you are using styles that remove you markers
+that a tab be present (or you will lose the whole list element.) You also
+<b>MUST</b> have a tab character for styles (like the &lt;dl&gt;) that have two
+parts . <p>
+<p>
+Another technique for lists (particularly glossaries) to be entered with the
+TERM on one line, and an indented definition on the following line. These are
+discussed below.<p>
+<p>
+Here are the sample TAB separated lists:<p>
+
+<h2>
+Ordered List styles</h2>
+<ol>
+<li>	level zero element - my markers stripped - This is the recommended
+style.<ol>
+<li>	level one element - my markers stripped - This is the recommended
+style.<ol>
+<li>	level two element - my markers stripped - This is the recommended
+style.</ol></ol></ol><h2>
+Un-Ordered List styles</h2>
+<ul>
+<li>	level zero element - my markers stripped - This is the recommended
+style.<ul>
+<li>	level one element - my markers stripped - This is the recommended
+style.<ul>
+<li>	level two element - my markers stripped - This is the recommended
+style.</ul></ul></ul><h2>
+Glossary styles</h2>
+<dl>
+<dt>This is areasonably large term
+<dd>Here is the definition of the term. Of course this format is used for more
+than just definitions.<dl>
+<dt>This is areasonably large term
+<dd>Here is the definition of the term. Of course this format is used for more
+than just definitions.<dl>
+<dt>This is areasonably large term
+<dd>Here is the definition of the term. Of course this format is used for more
+than just definitions</dl></dl></dl><h2>
+Dir styles</h2>
+<dir>
+<li>level zero dir item each 
+<li>is less than 20 chars long
+<li>and separated by tabs  or
+<li>parmarks
+<li>and these show up
+<li>in my docs as three
+<li>columns<dir>
+<li>level one dir item each 
+<li>is less than 20 chars long
+<li>and separated by tabs<dir>
+<li>level two dir item each 
+<li>is less than 20 chars long
+<li>and separated by tabs</dir></dir></dir><h2>
+Menu styles</h2>
+<menu>
+<li>level zero element <menu>
+<li>level one element <menu>
+<li>level two element </menu>
+</menu>
+</menu>
+<h2>
+Multi-Line lists</h2>
+In some cases, you want lists to span lines. An example of this is glossaries,
+where the term appears on one line and the definition on another. In this case,
+the TERM will be defined with one style, and the DEFinition with another.<p>
+Here are some samples:
+<dl>
+<dt>The first TERM<dd>The definition for the first term<dl>
+<dt>A nested TERM<dd>The definition for the nested term<dl>
+<dt>A level two TERM<dd>The corresponding definition.
+<br>
+<a name="Here"> </a></dl></dl></dl>
+Thanks for the click! It brought you here.<p>
+This is the 
+<a name="LINK1">target
+</a>of a hypertext link. This target was created by copying the text and
+pasting a link to it. <p>
+This is another 
+<a name="TargetName"> </a>
+target of a hypertext link.. This was created by formatting some text as
+hidden/outline.<p>
+</body></html>

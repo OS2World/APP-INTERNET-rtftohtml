@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if [ $# != 2 ]
+then
+  echo "usage: rtfcharset <file> <charset>"
+  echo "  <charset> may be one of: ansi, mac, pc, pca"
+  exit 1
+fi
+
+file=$1
+newcharset=$2
+oldcharset=`head -1 $file | cut -f 3 -d '\'`
+
+mv $file $file.orig
+sed "s/\\$oldcharset/\\$newcharset/" $file.orig >$file
+
+echo "Changed character set from $oldcharset to $newcharset."
+exit 0

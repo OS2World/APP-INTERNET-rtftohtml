@@ -1,0 +1,104 @@
+
+                       (short) README for rtftoweb 1.7
+             ====================================================
+
+         +-----------------------------------------------------------+
+         |      rtftoweb 1.7 *requires* rtftohtml version 2.7.5.     |
+         +-----------------------------------------------------------+
+
+If you don't already have rtftohtml version 2.7.5 you should find it in the
+same place that you fetched rtftoweb 1.7 from.
+
+(The currently lates version of rtftohtml can be found here:
+ftp://ftp.cray.com/src/WWWstuff/RTF/latest/src/unix.tar.Z. But note
+that a newer version of rtftohtml (>2.7.5) may not work with this version
+of rtftoweb!)
+
+NOTE: I have only tested these patches on UN*X platforms, I have absolutely
+      no idea if they work on Mac's, too, and to be honest, I'm not too
+      confident that they will (this is one of the things that are still
+      to be done).
+
+
+What is rtftoweb?
+-----------------
+
+rtftoweb is a set of patches that extend Chris Hector's great rtftohtml-filter
+with the following features:
+
+	o splitting of the document: rtftoweb uses the headlines to determine
+	  where to split (the splitting depth is adjustable by the user)
+	o fully configurable navigation panels on top and bottom of each page
+	o active cross references to headings
+	o automatic generation of an active table of contents
+	o automatic generation of an active index
+	o support for some of Netscape's features, such as the <center> tag
+	  and background images, and Netscape 2.0 frames!
+
+Files in rtftoweb-1.7.tar.gz:
+-----------------------------
+
+	patch.rtftoweb-1.7	patch file for some of rtftohtml's files
+	makefile.rtftoweb	makefile for rtftoweb
+	hier.c			my extensions (to create a hierarchy of files,
+				among other things)
+	hier.h			guess what
+	README.rtftoweb		this file
+	rtfcharset		a shell script to change the character set
+				of an rtf file. This is needed if a Mac Word
+				doc is modified by using WinWord 6.0, since
+				this one falsely pretends that the doc uses
+				ansi charset.
+
+	rtftoweb/README		how to use the extensions
+	rtftoweb/CHANGES	changes to rtftoweb since last version
+	rtftoweb/rtftoweb.dot	for use with Word for Windows
+	rtftoweb/rtftohtml.rtf	the "hypertext" "rtftohtml User's Guide"
+	rtftoweb/guide.rtf	A guide to using rtftohtml and rtftoweb.
+				Convert it!
+	Libs/lib/rtf-ctrl	a fixed rtf-ctrl for Word 6.0 by Chris Hector
+	rtf-ctrl		the same
+
+
+Quick Installation (more details in rtftoweb/README):
+-----------------------------------------------------
+
+	0. Unpack rtftohtml-2.7.5.tar.gz (if you don't already have that
+	   version of rtftohtml):
+	   "gzip -cd rtftohtml-2.7.5.tar.gz | tar xvf -"
+
+	1. Unpack rtftoweb-1.7.tar.gz in rtftohtml's source directory
+	   (should be rtftohtml*): "gzip -cd rtftoweb-1.7.tar.gz | tar xvf -".
+
+	   (This assumes that you have the GNU gzip-utilities installed.
+	   If you haven't it's high time to do so.)
+
+	2. Type "patch -l <patch.rtftoweb-1.7".
+
+	3. After editing makefile.rtftoweb to suit your needs, type
+	   "make -f makefile.rtftoweb".
+
+	4. Try it out, for example by typing in the rtftoweb-directory:
+	   "../rtftohtml -F -h2 -c -x guide.rtf".  This will create a few
+	   html-files, with guide.html naturally being the entry document.
+	   (NOTE: if you don't have rtftohtml installed, copy html-map and
+	   html-trans to ./rtftoweb)
+
+	   Also try:
+		"../rtftohtml -h -c -x guide.rtf"
+		"../rtftohtml -h0 -x guide.rtf"
+		"../rtftohtml -h0 guide.rtf"
+		"../rtftohtml" for a list of available options
+
+	5. If you like it (and after backing up your html-map and html-trans 
+	   files if you have changed them) type 
+	   "make -f makefile.rtftoweb install".
+
+	6. Read guide.rtf/guide.html. It contains hints on using your extended
+	   rtftohtml.
+
+Have fun!
+
+Christian Bolik, zzhibol@rrzn-user.uni-hannover.de
+
+

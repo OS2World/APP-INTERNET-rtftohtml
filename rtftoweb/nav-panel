@@ -1,0 +1,60 @@
+# 
+# This file is used for customizing the layout of the navigation panels
+# created by rtftoweb. It also lets you configure a few of Netscape's
+# own document options such as background and text color.  You can tell
+# rtftoweb to load a customization file like this one by the command
+# line option "-N <file>".  If the file "nav-panel" exists in
+# rtftohtml's library directory and no -N option was given the
+# navigation panel layout will be read from that file.
+# 
+# Each of the following lines define a certain panel element. Everything
+# that follows the first colon will be literally inserted into the html
+# files.  This way it is possible to have inline images as navigation
+# buttons.
+# 
+
+# these define the buttons of the navigation panels:
+previous.:<IMG SRC="granite_left.gif" ALT="<< ">
+next.....:<IMG SRC="granite_right.gif" ALT=">> ">
+up.......:<IMG SRC="granite_up.gif" ALT="Up ">
+title....:<IMG SRC="granite_top.gif" ALT="Title ">
+contents.:<IMG SRC="granite_contents.gif" ALT="Contents ">
+index....:<IMG SRC="granite_index.gif" ALT="Index">
+
+# the following maybe specified to display, say, a "previous" button, even if
+# there is no previous document (so that the nav panel always looks the same):
+noprev...:<IMG SRC="granite_left_blur.gif" ALT="<< ">
+nonext...:<IMG SRC="granite_right_blur.gif" ALT="<< ">
+noup.....:<IMG SRC="granite_up_blur.gif" ALT="Up ">
+notitle..:<IMG SRC="granite_top_blur.gif" ALT="Title ">
+
+# the delimiter between navigation items:
+delimiter: 
+
+# definition for the horizontal line:
+hr.......:<HR SIZE=4>
+
+#---------------
+#
+# The following lines specify additional document options to date only
+# supported by Netscape. The values entered here will apply to every
+# HTML-file created from the RTF document.
+#
+
+# an optional background image (just the filename):
+bgimage...:
+
+# if bgimage is not used, the background color can be specified as #rrggbb:
+#bgcolor...:#ffffff
+
+# this sets the text color of the document:
+#textcolor.:#0000ff
+
+# the color of links (default blue):
+#linkcolor.:#00ff00
+
+# the color of visited links (default purple):
+#vlinkcolor:#009900
+
+# the color of active links (default red):
+#alinkcolor:#aa00aa
